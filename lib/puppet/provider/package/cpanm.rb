@@ -18,7 +18,11 @@ Puppet::Type.type(:package).provide :cpanm, :parent => Puppet::Provider::Package
     module_vers_re = %r{"VERSION: ((\d+\.?)+)}
 
     # Shell out and parse `perldoc perllocal`
-    execpipe '/usr/bin/perldoc -t perllocal' do |process|
+    #
+    # If no perl modules are installed, perldoc will exit 1 and print "No
+    # documentation found for "perllocal" to stderr. In order to cope with
+    # this eventuality, we catch errors ('|| true') and redirect stderr.
+    execpipe '/usr/bin/perldoc -t perllocal 2>/dev/null || true' do |process|
       process.collect do |line|
         case line
         when module_name_re

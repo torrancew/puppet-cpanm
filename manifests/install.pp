@@ -1,5 +1,22 @@
 class cpanm::install {
-  if ! defined(Package['cpanminus'])  { package { 'cpanminus': ensure => installed } }
-  if ! defined(Package['perl-doc'])   { package { 'perl-doc':  ensure => installed } }
+  $cpanm_pkg = $operatingsystem ? {
+    default => 'cpanminus',
+  }
+
+  $perldoc_pkg = $operatingsystem ? {
+    'Archlinux' => 'perl',
+    default     => 'perl-doc',
+  }
+
+  package {
+    'perldoc':
+      ensure => installed,
+      name   => $perldoc_pkg;
+
+    'cpanminus':
+      ensure  => installed,
+      name    => $cpanm_pkg,
+      require => Package['perldoc'];
+  }
 }
 
